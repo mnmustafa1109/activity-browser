@@ -527,6 +527,14 @@ const cartographer = function() {
         //draws graph into canvas
         canvas.addItem();
 
+        // Center text in nodes (fix for SVG text alignment)
+        if (is_sankey_mode) {
+            panCanvas.selectAll("g.node text")
+                .attr("text-anchor", "middle")
+                .attr("dominant-baseline", "central")
+                .attr("dy", "0.35em");
+        }
+
         // Adds click listener, calling handleMouseClick func
         var nodes = panCanvas.selectAll("g .node")
             .on("click", handleMouseClick);
@@ -537,14 +545,6 @@ const cartographer = function() {
                 div.transition()
                     .duration(500)
                     .style("opacity", 0);
-            });
-
-            // change node fill based on impact
-            var node_rects = panCanvas.selectAll("g .node rect")
-            .on("click", handleMouseClick)
-            .style("fill", function(d) {
-                console.log(color(graph.node(d).ind_norm));
-                return color(graph.node(d).ind_norm);
             });
         }
 
