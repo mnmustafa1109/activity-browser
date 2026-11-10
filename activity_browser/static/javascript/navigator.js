@@ -583,6 +583,7 @@ const cartographer = function() {
 
         if(is_sankey_mode) {
             node_data.label = wrapText(n['product'], max_string_length);
+            node_data.labelType = "svg";
             node_data.ind_norm = n['ind_norm'];
             node_data.tooltip = '<b>' + n['product'] + '</b>'
                       + '<br>Individual impact: ' + roundNumber(n['ind']) + ' ' + n['LCIA_unit']
@@ -605,7 +606,7 @@ const cartographer = function() {
         }
 
         if(is_sankey_mode) {
-            edge_data.label = wrapText(e['product'], max_string_length);
+            edge_data.label = "";
             edge_data.weight = Math.abs(e["impact"] / max_impact ) * max_edge_width;
             let impact_or_benefit = "impact";
             if (e['impact'] < 0) {impact_or_benefit = "benefit"; console.log("BENEFIT");};

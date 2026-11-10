@@ -92,7 +92,8 @@ text {
   text-rendering: optimizeLegibility;
 }
 
-.node text {
+.node text,
+.node .label {
   fill: #1a1a2e;
   font-size: 12px;
   font-weight: 500;
