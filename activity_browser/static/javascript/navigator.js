@@ -527,12 +527,24 @@ const cartographer = function() {
         //draws graph into canvas
         canvas.addItem();
 
-        // Center text in nodes (fix for SVG text alignment)
+        // Center text in nodes (robust approach: position at rect center)
         if (is_sankey_mode) {
-            panCanvas.selectAll("g.node text")
-                .attr("text-anchor", "middle")
-                .attr("dominant-baseline", "central")
-                .attr("dy", "1.5em");
+            panCanvas.selectAll("g.node").each(function() {
+                const node = d3.select(this);
+                const rect = node.select("rect");
+                const text = node.select("text");
+                
+                if (!rect.empty() && !text.empty()) {
+                    const bbox = rect.node().getBBox();
+                    const cx = bbox.x + bbox.width / 2;
+                    const cy = bbox.y + bbox.height / 2;
+                    
+                    text.attr("x", cx)
+                        .attr("y", cy)
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "central");
+                }
+            });
         }
 
         // Adds click listener, calling handleMouseClick func
