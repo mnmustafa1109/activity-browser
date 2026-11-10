@@ -711,39 +711,68 @@ d3.select("#resetButtonqPWKOg").on("click", function() {
     canvas.reset();
 });
 
-d3.select("#downloadSVGtButtonqPWKOg").on("click", function() {
+// Embedded CSS styles for SVG export (includes all text-related styles from navigator.css)
+const SVG_EMBEDDED_STYLES = `
+<style type="text/css"><![CDATA[
+.canvas .wrapper.outer > .background { fill: #FFFFFF; }
+.canvas .wrapper.inner > .background { fill: #FFFFFF; cursor: move; }
+.canvas .background { fill: #FFFFFF; stroke: #333333; cursor: move; }
+.canvas .minimap { stroke: #000000; stroke-width: 1px; }
+.canvas .minimap .frame { pointer-events: all; }
+.canvas .minimap .container { stroke: #000000; }
+.canvas .minimap .frame .background {
+  stroke: #FF0000; stroke-width: 10px; fill-opacity: 0.1;
+  fill: #FFFFFF; filter: url(#minimapDropShadow_qwpyza); cursor: move; border: 1px solid #999;
+}
+text { font-family: sans-serif; font-size: 14px; }
+.activityNameText { color: black; text-align: center; }
+.locationText { color: grey; text-align: center; }
+.edgeText { color: darkblue; text-align: center; }
+.node { fill: black; white-space: nowrap; cursor: pointer; }
+.node rect { stroke: #333; fill: #fff; stroke-width: 3px; }
+.node.treatment rect { stroke: #ff634c; fill: #fff; stroke-width: 3px; }
+.node.market rect { stroke: #ff7b00; fill: #fff; stroke-width: 3px; }
+.node.marketgroup rect { stroke: #ffc34c; fill: #fff; stroke-width: 3px; }
+.edgePath { fill: grey; }
+.edgeLabel { fill: darkblue; }
+.edgePath path.path { stroke: lightblue; stroke-width: 3px; }
+div.tooltip { position: absolute; text-align: left; width: auto; height: auto; padding: 2px; font: 12px sans-serif; background: #fffce2; border: 0px; border-radius: 8px; pointer-events: none; }
+]]></style>
+`;
 
-    // create new svg element
-    var clone = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-    // copy figure content to new svg element
-    var inner_graphic = document.getElementsByClassName("inner")[0]
-    clone.innerHTML = inner_graphic.outerHTML;
-
-    // edit new svg element
-    var parentTag = document.getElementById("canvasqPWKOg");
-    var svg = parentTag.firstChild
-    var svg_rect = svg.getBBox(); // get the bounding rectangle
-    clone.setAttribute("width", String(svg_rect.width));
-    clone.setAttribute("height", String(svg_rect.height));
-
-    var inner_graphic_staging = clone.getElementsByClassName("inner")[0]
-    panCanvasElem = inner_graphic_staging.getElementsByClassName("panCanvas")[0]
-    panCanvasElem.removeAttribute("width")
-    panCanvasElem.removeAttribute("height")
-    panCanvasElem.removeAttribute("transform")
-    var rect_elem = inner_graphic_staging.getElementsByClassName("background")[0]
-    inner_graphic_staging.removeChild(rect_elem);
-
-    // insert style info
-    clone.insertAdjacentHTML('afterbegin', window.style_element_text)
-
-    //get svg source
-    var serializer = new XMLSerializer();
-    var source = serializer.serializeToString(clone);
-
-    window.bridge.download_triggered(source)
-});
+ d3.select("#downloadSVGtButtonqPWKOg").on("click", function() {
+ 
+     // create new svg element
+     var clone = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+ 
+     // copy figure content to new svg element
+     var inner_graphic = document.getElementsByClassName("inner")[0]
+     clone.innerHTML = inner_graphic.outerHTML;
+ 
+     // edit new svg element
+     var parentTag = document.getElementById("canvasqPWKOg");
+     var svg = parentTag.firstChild
+     var svg_rect = svg.getBBox(); // get the bounding rectangle
+     clone.setAttribute("width", String(svg_rect.width));
+     clone.setAttribute("height", String(svg_rect.height));
+ 
+     var inner_graphic_staging = clone.getElementsByClassName("inner")[0]
+     panCanvasElem = inner_graphic_staging.getElementsByClassName("panCanvas")[0]
+     panCanvasElem.removeAttribute("width")
+     panCanvasElem.removeAttribute("height")
+     panCanvasElem.removeAttribute("transform")
+     var rect_elem = inner_graphic_staging.getElementsByClassName("background")[0]
+     inner_graphic_staging.removeChild(rect_elem);
+ 
+    // insert embedded styles for text and element rendering
+    clone.insertAdjacentHTML('afterbegin', SVG_EMBEDDED_STYLES)
+ 
+     //get svg source
+     var serializer = new XMLSerializer();
+     var source = serializer.serializeToString(clone);
+ 
+     window.bridge.download_triggered(source)
+ });
 
 // Construct 'render' object and initialize cartographer.
 var render = dagreD3.render();
