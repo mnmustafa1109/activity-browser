@@ -512,7 +512,7 @@ const cartographer = function() {
 	    }
         heading.innerHTML = data.title;
         // Reset graph to empty
-        graph = new dagre.graphlib.Graph({ multigraph: true }).setGraph({});
+        graph = new dagre.graphlib.Graph({ multigraph: true }).setGraph({ rankdir: "LR" });
 
         // nodes --> graph
         data.nodes.forEach(buildGraphNode);
@@ -711,7 +711,7 @@ d3.select("#downloadSVGtButtonqPWKOg").on("click", function() {
 
 // Construct 'render' object and initialize cartographer.
 var render = dagreD3.render();
-var graph = new dagre.graphlib.Graph({ multigraph: true }).setGraph({});
+var graph = new dagre.graphlib.Graph({ multigraph: true }).setGraph({ rankdir: "LR" });
 cartographer();
 
 /* END OF ADAPTED DEMO SCRIPT*/
