@@ -37,7 +37,7 @@ function getWindowSize() {
     return {x,y};
 };
 
-var max_string_length = 20;
+var max_string_length = 35;
 var max_edge_width = 40;
 
 var globalWidth = null;
@@ -582,13 +582,11 @@ const cartographer = function() {
         };
 
         if(is_sankey_mode) {
-            node_data.label = wrapText(n['name'], max_string_length)
-                          + '\n' + n['location']
-                          + '\n(' + Math.round(n['ind_norm'] * 100) + '%)';
+            node_data.label = wrapText(n['product'], max_string_length);
             node_data.ind_norm = n['ind_norm'];
-            node_data.tooltip = '<b>' + n['name'] + '</b>'
-                      + '<br>Individual impact: &nbsp&nbsp&nbsp' + roundNumber(n['ind']) + ' ' + n['LCIA_unit'] +  ' (' + Math.round(n['ind_norm'] * 100) + '%)'
-                      + '<br>Cumulative impact: ' + roundNumber(n['cum']) + ' ' + n['LCIA_unit'] +  ' (' + Math.round(n['cum_norm'] * 100) + '%)';
+            node_data.tooltip = '<b>' + n['product'] + '</b>'
+                      + '<br>Individual impact: ' + roundNumber(n['ind']) + ' ' + n['LCIA_unit']
+                      + '<br>Cumulative impact: ' + roundNumber(n['cum']) + ' ' + n['LCIA_unit'];
         } else {
             node_data.label = formatNodeText(n['name'], n['location']);
             node_data.labelType = "html";
@@ -607,8 +605,7 @@ const cartographer = function() {
         }
 
         if(is_sankey_mode) {
-            edge_data.label = wrapText(e['product']
-                + '\n(' + roundNumber(e['ind_norm']*100) + '%)', max_string_length);
+            edge_data.label = wrapText(e['product'], max_string_length);
             edge_data.weight = Math.abs(e["impact"] / max_impact ) * max_edge_width;
             let impact_or_benefit = "impact";
             if (e['impact'] < 0) {impact_or_benefit = "benefit"; console.log("BENEFIT");};
@@ -749,8 +746,8 @@ var color = d3.scaleLinear()
 
 // break strings into multiple lines after certain length if necessary
 function wrapText(str, length) {
-    //console.log(str.replace(/.{10}\S*\s+/g, "$&@").split(/\s+@/).join("\n"))
-    return str.replace(/.{15}\S*\s+/g, "$&@").split(/\s+@/).join(is_sankey_mode?"\n":"<br>")
+    return str.replace(new RegExp('.{1,' + length + '}(?:\\S*\\s+)', 'g'), "$&@").split(/\s+@/).join(is_sankey_mode?"\n":"<br>")
+}
 //    return str.match(new RegExp('.{1,' + length + '}', 'g')).join("\n");
 }
 
