@@ -532,7 +532,7 @@ const cartographer = function() {
             panCanvas.selectAll("g.node text")
                 .attr("text-anchor", "middle")
                 .attr("dominant-baseline", "central")
-                .attr("dy", "0.6em");
+                .attr("dy", "0.9em");
         }
 
         // Adds click listener, calling handleMouseClick func
