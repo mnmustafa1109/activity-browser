@@ -543,10 +543,33 @@ const cartographer = function() {
                     const cx = rx + rw / 2;
                     const cy = ry + rh / 2;
                     
-                    text.attr("x", cx)
-                        .attr("y", cy)
-                        .attr("text-anchor", "middle")
-                        .attr("dominant-baseline", "central");
+                    // Handle HTML labels (multiple tspans) and plain text
+                    const tspans = text.selectAll("tspan");
+                    if (!tspans.empty()) {
+                        // Multi-line HTML label: center each tspan horizontally,
+                        // distribute vertically centered in the rect
+                        const tspanNodes = tspans.nodes();
+                        const lineCount = tspanNodes.length;
+                        const lineHeight = parseFloat(tspans.attr("dy")) || 1.2 * parseFloat(text.style("font-size")) || 14;
+                        const totalHeight = lineCount * lineHeight;
+                        const startY = cy - totalHeight / 2 + lineHeight / 2;
+                        
+                        tspans.each(function(i) {
+                            d3.select(this)
+                                .attr("x", cx)
+                                .attr("y", startY + i * lineHeight)
+                                .attr("text-anchor", "middle")
+                                .attr("dominant-baseline", "central");
+                        });
+                        // Hide the parent text element (it contains no direct text)
+                        text.attr("text-anchor", "middle");
+                    } else {
+                        // Plain text (single line)
+                        text.attr("x", cx)
+                            .attr("y", cy)
+                            .attr("text-anchor", "middle")
+                            .attr("dominant-baseline", "central");
+                    }
                 }
             });
         }
@@ -596,9 +619,9 @@ const cartographer = function() {
             database: n['db'],
             class: n['class'],
         };
-
         if(is_sankey_mode) {
-            node_data.label = wrapText(n['product'], max_string_length);
+            node_data.label = wrapText(n['product'], max_string_length).replace(/\n/g, "<br>");
+            node_data.labelType = "html";
             node_data.ind_norm = n['ind_norm'];
             node_data.tooltip = '<b>' + n['product'] + '</b>'
                       + '<br>Individual impact: ' + roundNumber(n['ind']) + ' ' + n['LCIA_unit']
