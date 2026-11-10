@@ -527,18 +527,20 @@ const cartographer = function() {
         //draws graph into canvas
         canvas.addItem();
 
-        // Center text in nodes (dagre positions node group at center, rect centered at 0,0)
+        // Center text in nodes (use rect bbox for precise centering)
         if (is_sankey_mode) {
             panCanvas.selectAll("g.node").each(function() {
                 const node = d3.select(this);
+                const rect = node.select("rect");
                 const text = node.select("text");
                 
-                if (!text.empty()) {
-                    // In dagre-d3, the node group is translated to the node center.
-                    // The rect is drawn centered at (0,0) with width/height.
-                    // So text at (0,0) with middle/central anchoring = perfectly centered.
-                    text.attr("x", 0)
-                        .attr("y", 0)
+                if (!text.empty() && !rect.empty()) {
+                    const bbox = rect.node().getBBox();
+                    const cx = bbox.x + bbox.width / 2;
+                    const cy = bbox.y + bbox.height / 2;
+                    
+                    text.attr("x", cx)
+                        .attr("y", cy)
                         .attr("text-anchor", "middle")
                         .attr("dominant-baseline", "central");
                 }
