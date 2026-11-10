@@ -748,8 +748,6 @@ var color = d3.scaleLinear()
 function wrapText(str, length) {
     return str.replace(new RegExp('.{1,' + length + '}(?:\\S*\\s+)', 'g'), "$&@").split(/\s+@/).join(is_sankey_mode?"\n":"<br>")
 }
-//    return str.match(new RegExp('.{1,' + length + '}', 'g')).join("\n");
-}
 
 function roundNumber(number) {
 //    return number.toFixed(2)
