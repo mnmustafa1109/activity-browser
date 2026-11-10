@@ -583,7 +583,6 @@ const cartographer = function() {
 
         if(is_sankey_mode) {
             node_data.label = wrapText(n['product'], max_string_length);
-            node_data.labelType = "svg";
             node_data.ind_norm = n['ind_norm'];
             node_data.tooltip = '<b>' + n['product'] + '</b>'
                       + '<br>Individual impact: ' + roundNumber(n['ind']) + ' ' + n['LCIA_unit']
