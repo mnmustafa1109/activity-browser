@@ -527,115 +527,51 @@ const cartographer = function() {
         //draws graph into canvas
         canvas.addItem();
 
-        // Sankey styling: position labels LEFT of vertical node bars, add title
+        // Center text in nodes (use rect attributes directly)
         if (is_sankey_mode) {
-            // Add title and subtitle at top center
-            const titleText = heading.innerHTML || "Sankey Diagram";
-            const subtitleText = "Flow widths show relative contribution shares";
-            
-            // Remove existing title if any
-            const svg = panCanvas.node().ownerSVGElement;
-            const outerWrapper = d3.select(svg).select(".wrapper.outer");
-            outerWrapper.select(".sankey-title-group").remove();
-            
-            const titleGroup = outerWrapper.append("g")
-                .attr("class", "sankey-title-group")
-                .attr("transform", "translate(" + (globalWidth * (is_sankey_mode ? 0.45 : 0.5)) + ", 35)");
-            
-            titleGroup.append("text")
-                .attr("class", "sankey-title")
-                .attr("x", 0)
-                .attr("y", 0)
-                .text(titleText);
-            
-            titleGroup.append("text")
-                .attr("class", "sankey-subtitle")
-                .attr("x", 0)
-                .attr("y", 24)
-                .text(subtitleText);
-
-            // Position labels to the LEFT of each node rect
             panCanvas.selectAll("g.node").each(function() {
                 const node = d3.select(this);
                 const rect = node.select("rect");
-                const labelGroup = node.select("g.label");
+                const text = node.select("text");
                 
-                if (!rect.empty() && !labelGroup.empty()) {
+                if (!text.empty() && !rect.empty()) {
                     const rx = parseFloat(rect.attr("x")) || 0;
                     const ry = parseFloat(rect.attr("y")) || 0;
                     const rw = parseFloat(rect.attr("width")) || 100;
                     const rh = parseFloat(rect.attr("height")) || 40;
                     
+                    const cx = rx + rw / 2;
                     const cy = ry + rh / 2;
-                    // Position label to the left of the rect with 8px gap
-                    const labelX = rx - 8;
                     
-                    // Handle both foreignObject (HTML labels) and SVG text
-                    const foreignObj = labelGroup.select("foreignObject");
-                    const textElem = labelGroup.select("text");
-                    
-                    if (!foreignObj.empty()) {
-                        // HTML label via foreignObject - reposition the group
-                        labelGroup.attr("transform", "translate(" + labelX + "," + cy + ")");
-                        // Ensure text inside foreignObject is right-aligned
-                        const div = foreignObj.select("div");
-                        if (!div.empty()) {
-                            div.style("text-align", "right");
-                            div.style("white-space", "normal");
-                            div.style("line-height", "1.2");
-                        }
-                    } else if (!textElem.empty()) {
-                        // SVG text label
-                        const tspans = textElem.selectAll("tspan");
-                        if (!tspans.empty()) {
-                            tspans.each(function() {
-                                d3.select(this)
-                                    .attr("x", labelX)
-                                    .attr("text-anchor", "end")
-                                    .attr("dominant-baseline", "middle");
-                            });
-                            // Position first tspan at center Y, others offset
-                            const tspanNodes = tspans.nodes();
-                            const lineHeight = 14;
-                            const totalHeight = tspanNodes.length * lineHeight;
-                            const startY = cy - totalHeight / 2 + lineHeight / 2;
-                            tspans.each(function(i) {
-                                d3.select(this).attr("y", startY + i * lineHeight);
-                            });
-                        } else {
-                            textElem
-                                .attr("x", labelX)
-                                .attr("y", cy)
-                                .attr("text-anchor", "end")
-                                .attr("dominant-baseline", "middle");
-                        }
+                    // Handle HTML labels (multiple tspans) and plain text
+                    const tspans = text.selectAll("tspan");
+                    if (!tspans.empty()) {
+                        // Multi-line HTML label: center each tspan horizontally,
+                        // distribute vertically centered in the rect
+                        const tspanNodes = tspans.nodes();
+                        const lineCount = tspanNodes.length;
+                        const lineHeight = parseFloat(tspans.attr("dy")) || 1.2 * parseFloat(text.style("font-size")) || 14;
+                        const totalHeight = lineCount * lineHeight;
+                        const startY = cy - totalHeight / 2 + lineHeight / 2;
+                        
+                        tspans.each(function(i) {
+                            d3.select(this)
+                                .attr("x", cx)
+                                .attr("y", startY + i * lineHeight)
+                                .attr("text-anchor", "middle")
+                                .attr("dominant-baseline", "central");
+                        });
+                        // Hide the parent text element (it contains no direct text)
+                        text.attr("text-anchor", "middle");
+                    } else {
+                        // Plain text (single line)
+                        text.attr("x", cx)
+                            .attr("y", cy)
+                            .attr("text-anchor", "middle")
+                            .attr("dominant-baseline", "central");
                     }
                 }
             });
-
-            // Mark last node (rightmost) as "total" for darker styling
-            const allNodes = panCanvas.selectAll("g.node").nodes();
-            if (allNodes.length > 0) {
-                // Find rightmost node by transform x
-                let rightmostNode = allNodes[0];
-                let maxX = -Infinity;
-                allNodes.forEach(function(n) {
-                    const transform = d3.select(n).attr("transform");
-                    const match = transform.match(/translate\(([^,]+)/);
-                    if (match) {
-                        const x = parseFloat(match[1]);
-                        if (x > maxX) {
-                            maxX = x;
-                            rightmostNode = n;
-                        }
-                    }
-                });
-                d3.select(rightmostNode).classed("total", true);
-            }
-
-            // Hide arrowheads (markers)
-            panCanvas.selectAll("defs marker").remove();
-            panCanvas.selectAll("path[marker-end]").attr("marker-end", null);
         }
 
         // Adds click listener, calling handleMouseClick func
@@ -661,7 +597,17 @@ const cartographer = function() {
         });
 
         if(is_sankey_mode) {
-            edges.attr("stroke-width", function(d) { return graph.edge(d).weight; });
+            edges.attr("stroke-width", function(d) { return graph.edge(d).weight; })
+
+             // re-scale arrowheads to fit into edge (they become really big otherwise)
+            markers = d3.selectAll("marker")
+                .attr("viewBox", "0 0 60 60");  // basically zoom out on the arrowhead
+
+            // fix arrowhead urls
+            d3.selectAll("path").attr("marker-end", function(data) {
+                if (!this.attributes["marker-end"]) return null;
+                else return "url(" + /url\(.*?(#.*?)\)/.exec(this.attributes["marker-end"].textContent)[1] + ")";
+            });
         }
     };
 

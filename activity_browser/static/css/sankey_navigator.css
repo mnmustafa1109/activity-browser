@@ -1,36 +1,52 @@
-/* Sankey Navigator - Reference Style */
-/* Dark vertical node bars, light flow bands, labels positioned left of nodes */
+
+
+
+/*to make the svg resizable*/ /*
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    /*padding-bottom: 100%; /* aspect ratio */ /*
+    vertical-align: top;
+    /*overflow: hidden;*/ /*
+}
+
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+} */ /*
+
+svg {
+  border: 1px solid #999;
+  /*overflow: hidden;*/ /*
+} */
 
 .canvas {
   overflow: visible;
-  background: #f8fafc;
 }
-
 .canvas .wrapper.outer > .background {
-  fill: #f8fafc;
+  fill: #fafafa;
 }
-
 .canvas .wrapper.inner > .background {
-  fill: #f8fafc;
+  fill: #fafafa;
   cursor: move;
 }
-
 .canvas .background {
-  fill: #f8fafc;
+  fill: #fafafa;
+  stroke: #e0e0e0;
   cursor: move;
 }
-
 .canvas .panCanvas {
   cursor: grab;
 }
-
 .canvas .panCanvas:active {
   cursor: grabbing;
 }
 
-/* Minimap */
 .canvas .minimap {
-  stroke: #64748b;
+  stroke: #2596be;
   stroke-width: 1px;
 }
 
@@ -39,157 +55,187 @@
 }
 
 .canvas .minimap .container {
-  stroke: #64748b;
+  stroke: #2596be;
 }
 
 .canvas .minimap .frame .background {
-  stroke: #64748b;
+  stroke: #2596be;
   stroke-width: 2px;
-  fill-opacity: 0.1;
-  fill: #64748b;
+  fill-opacity: 0.15;
+  fill: #2596be;
   filter: url(#minimapDropShadow_qwpyza);
   cursor: move;
+  border: 1px solid #e0e0e0;
 }
 
-/* Title and subtitle */
-.sankey-title {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  fill: #1e293b;
-  text-anchor: middle;
+/*
+.cluster rect {
+  stroke: #333;
+  fill: #000;
+  fill-opacity: 0.1;
+  stroke-width: 1.5px;
+}*/
+
+h1, h2 {
+  color: #1a1a2e;
 }
 
-.sankey-subtitle {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  fill: #64748b;
-  text-anchor: middle;
-}
+/*textarea {
+  width: 800px;
+}*/
 
-/* Base text styling */
 text {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 12px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-size: 13px;
+  +-webkit-font-smoothing: antialiased;
+  +-moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Node labels - positioned LEFT of vertical bars */
-.node .label text,
-.node .label foreignObject {
-  fill: #f8fafc;
-  font-size: 11px;
+.node text,
+.node .label {
+  fill: #1a1a2e;
+  font-size: 12px;
   font-weight: 500;
-  text-anchor: end;
-  dominant-baseline: middle;
+  text-anchor: middle;
+  dominant-baseline: central;
+  transform: translate(0, 0);
 }
 
-/* Node label text (for foreignObject content) */
-.node .label div {
-  color: #f8fafc !important;
-  font-size: 11px !important;
-  font-weight: 500 !important;
-  text-align: right !important;
-  white-space: normal !important;
-  line-height: 1.2 !important;
+.activityNameText {
+  color: #1a1a2e;
+  text-align: center;
+  font-weight: 500;
+}
+.locationText {
+  color: #6b7280;
+  text-align: center;
+  font-size: 12px;
+}
+.edgeText {
+  color: #2596be;
+  text-align: center;
+  font-weight: 500;
 }
 
-/* Node rectangles - vertical bars, no rounded corners */
 .node rect {
-  fill: #1e293b;
-  stroke: none;
-  rx: 0;
-  ry: 0;
+  stroke: #2596be;
+  fill: #fff;
+  stroke-width: 2.5px;
+  rx: 4;
+  ry: 4;
 }
 
-/* Demand/first node - slightly lighter */
+.node.demand {
+  font-weight: 600;
+}
+
 .node.demand rect {
-  fill: #334155;
+  stroke: #1a6b8a;
+  fill: #fff;
+  stroke-width: 3.5px;
+  rx: 4;
+  ry: 4;
 }
 
-/* Market nodes */
 .node.market rect {
-  fill: #1e293b;
+  stroke: #2596be;
+  fill: #fff;
+  stroke-width: 2.5px;
+  rx: 4;
+  ry: 4;
+  opacity: 0.8;
+}
+
+.node.marketgroup rect {
+  stroke: #2596be;
+  fill: #fff;
+  stroke-width: 2.5px;
+  rx: 4;
+  ry: 4;
+  opacity: 0.6;
+}
+
+.node.treatment rect {
+  stroke: #2596be;
+  fill: #fff;
+  stroke-width: 2.5px;
+  rx: 4;
+  ry: 4;
   opacity: 0.9;
 }
 
-/* Market group nodes */
-.node.marketgroup rect {
-  fill: #1e293b;
-  opacity: 0.7;
-}
-
-/* Production nodes */
-.node.production rect {
-  fill: #1e293b;
-}
-
-/* Treatment nodes */
-.node.treatment rect {
-  fill: #1e293b;
-  opacity: 0.85;
-}
-
-/* Total/last node - darkest */
-.node.total rect,
-.node:last-child rect {
-  fill: #0f172a;
-}
-
-/* Edges - flow bands, no arrowheads */
-.edgePath path.path {
-  fill: none;
-  stroke: #94a3b8;
-  opacity: 0.6;
-  stroke-linecap: round;
-}
-
+/* Edges */
 .edgePath.impact path.path {
-  stroke: #94a3b8;
-  opacity: 0.65;
+  stroke: #2596be;
+  opacity: 0.75;
 }
 
 .edgePath.benefit path.path {
-  stroke: #4ade80;
-  opacity: 0.65;
+  stroke: #22c55e;
+  opacity: 0.75;
 }
 
-/* Hide arrowheads completely */
-.edgePath path:not(.path),
-.marker,
-defs marker {
-  display: none;
+/* Arrowhead */
+.edgePath path {
+  stroke: none;
+  opacity: 0.4;
 }
 
-/* Edge labels - hide for sankey (flow width shows magnitude) */
 .edgeLabel {
-  display: none;
+  fill: #2596be;
+  font-weight: 500;
+  font-size: 11px;
+  +-webkit-font-smoothing: antialiased;
+  +-moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  paint-order: stroke fill;
+  stroke: #fafafa;
+  stroke-width: 2px;
 }
 
-/* Minor input labels - small text near thin flows */
-.minor-input-label {
-  fill: #64748b;
-  font-size: 9px;
-  font-weight: 400;
-  text-anchor: start;
-  dominant-baseline: middle;
+
+
+
+/*.label {
+   /* text color*/
+  /* no effect:
+  margin-top: 30em;
+fill: red;
+  display: block;
+  text-align: right;
+  font: 20px sans-serif;
+  background: #fffce2;
+  padding: 200px; */
+/*}
+
+.edgeLabel {
+   /* text color*/
+  /* no effect:
+  fill: red;
+  margin-top: 30em;
+  display: block;
+  text-align: right;
+  font: 20px sans-serif;
+  background: #fffce2;
+  padding: 200px; */
+/*}*/
+
+.error {
+  color: #ef4444;
 }
 
-/* Tooltip */
 div.tooltip {
   position: absolute;
   text-align: left;
   width: auto;
   height: auto;
   padding: 10px 14px;
-  font: 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #0f172a;
-  color: #f1f5f9;
-  border: 1px solid #334155;
-  border-radius: 8px;
+  font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #1a1a2e;
+  color: #f3f4f6;
+  border: 1px solid #2596be;
+  border-radius: 10px;
   pointer-events: none;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 8px 24px rgba(37, 150, 190, 0.25);
 }
