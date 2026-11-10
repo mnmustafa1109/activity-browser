@@ -527,7 +527,7 @@ const cartographer = function() {
         //draws graph into canvas
         canvas.addItem();
 
-        // Center text in nodes (use rect bbox for precise centering)
+        // Center text in nodes (use rect attributes directly)
         if (is_sankey_mode) {
             panCanvas.selectAll("g.node").each(function() {
                 const node = d3.select(this);
@@ -535,9 +535,13 @@ const cartographer = function() {
                 const text = node.select("text");
                 
                 if (!text.empty() && !rect.empty()) {
-                    const bbox = rect.node().getBBox();
-                    const cx = bbox.x + bbox.width / 2;
-                    const cy = bbox.y + bbox.height / 2;
+                    const rx = parseFloat(rect.attr("x")) || 0;
+                    const ry = parseFloat(rect.attr("y")) || 0;
+                    const rw = parseFloat(rect.attr("width")) || 100;
+                    const rh = parseFloat(rect.attr("height")) || 40;
+                    
+                    const cx = rx + rw / 2;
+                    const cy = ry + rh / 2;
                     
                     text.attr("x", cx)
                         .attr("y", cy)
