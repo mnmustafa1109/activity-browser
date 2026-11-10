@@ -110,7 +110,7 @@ text {
 }
 
 .node rect {
-  stroke: #d1d5db;
+  stroke: #2596be;
   fill: #fff;
   stroke-width: 2.5px;
   rx: 4;
@@ -122,7 +122,7 @@ text {
 }
 
 .node.demand rect {
-  stroke: #2596be;
+  stroke: #1a6b8a;
   fill: #fff;
   stroke-width: 3.5px;
   rx: 4;
@@ -130,32 +130,35 @@ text {
 }
 
 .node.market rect {
-  stroke: #f59e0b;
+  stroke: #2596be;
   fill: #fff;
   stroke-width: 2.5px;
   rx: 4;
   ry: 4;
+  opacity: 0.8;
 }
 
 .node.marketgroup rect {
-  stroke: #fbbf24;
+  stroke: #2596be;
   fill: #fff;
   stroke-width: 2.5px;
   rx: 4;
   ry: 4;
+  opacity: 0.6;
 }
 
 .node.treatment rect {
-  stroke: #ef4444;
+  stroke: #2596be;
   fill: #fff;
   stroke-width: 2.5px;
   rx: 4;
   ry: 4;
+  opacity: 0.9;
 }
 
 /* Edges */
 .edgePath.impact path.path {
-  stroke: #ef4444;
+  stroke: #2596be;
   opacity: 0.75;
 }
 
