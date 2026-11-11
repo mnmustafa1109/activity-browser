@@ -599,10 +599,30 @@ const cartographer = function() {
         if(is_sankey_mode) {
             edges.attr("stroke-width", function(d) { return graph.edge(d).weight; })
 
-            // Sankey flows are ribbons; arrowheads are wider than the ribbon and
-            // break the widths, so drop them (direction follows the left-to-right layout).
-            panCanvas.selectAll(".edgePath path.path").attr("marker-end", null);
-            d3.selectAll("marker").remove();
+            // Pointed flow ends: dagre's markers, scaled to the ribbon and painted
+            // in the flow colour instead of the default oversized grey. Keep the
+            // 10x10 viewBox the triangle was drawn for, or it renders off-centre.
+            // "none" lets it be shorter than it is wide: a flat arrowhead on a
+            // curved ribbon instead of a long lopsided spike.
+            d3.selectAll("marker")
+                .attr("viewBox", "0 0 10 10")
+                .attr("preserveAspectRatio", "none")
+                .attr("markerWidth", 1)
+                .attr("markerHeight", 1.5);
+            d3.selectAll("path").attr("marker-end", function(data) {
+                if (!this.attributes["marker-end"]) return null;
+                return "url(" + /url\(.*?(#.*?)\)/.exec(this.attributes["marker-end"].textContent)[1] + ")";
+            });
+            panCanvas.selectAll(".edgePath path.path").each(function() {
+                var markerId = /url\(#(.*?)\)/.exec(this.getAttribute("marker-end") || "");
+                if (!markerId) return;
+                var marker = document.getElementById(markerId[1]);
+                var tip = marker && marker.getElementsByTagName("path")[0];
+                if (tip) {
+                    tip.setAttribute("fill", window.getComputedStyle(this).stroke);
+                    tip.style.opacity = "1"; // the .edgePath CSS dims marker paths
+                }
+            });
         }
     };
 
