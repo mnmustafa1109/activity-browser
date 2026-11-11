@@ -92,6 +92,12 @@ text {
   text-rendering: optimizeLegibility;
 }
 
+/* Node labels are HTML inside foreignObject, so the rule above does not reach them. */
+foreignObject div {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+}
+
 .node text,
 .node .label {
   fill: #1a1a2e;

@@ -599,15 +599,10 @@ const cartographer = function() {
         if(is_sankey_mode) {
             edges.attr("stroke-width", function(d) { return graph.edge(d).weight; })
 
-             // re-scale arrowheads to fit into edge (they become really big otherwise)
-            markers = d3.selectAll("marker")
-                .attr("viewBox", "0 0 60 60");  // basically zoom out on the arrowhead
-
-            // fix arrowhead urls
-            d3.selectAll("path").attr("marker-end", function(data) {
-                if (!this.attributes["marker-end"]) return null;
-                else return "url(" + /url\(.*?(#.*?)\)/.exec(this.attributes["marker-end"].textContent)[1] + ")";
-            });
+            // Sankey flows are ribbons; arrowheads are wider than the ribbon and
+            // break the widths, so drop them (direction follows the left-to-right layout).
+            panCanvas.selectAll(".edgePath path.path").attr("marker-end", null);
+            d3.selectAll("marker").remove();
         }
     };
 
@@ -749,23 +744,48 @@ function buildExportSVG() {
     var inner_graphic = document.getElementsByClassName("inner")[0]
     clone.innerHTML = inner_graphic.outerHTML;
 
-    // edit new svg element
-    var parentTag = document.getElementById("canvasqPWKOg");
-    var svg = parentTag.firstChild
-    var svg_rect = svg.getBBox(); // get the bounding rectangle
-    clone.setAttribute("width", String(svg_rect.width));
-    clone.setAttribute("height", String(svg_rect.height));
-
     var inner_graphic_staging = clone.getElementsByClassName("inner")[0]
     var panCanvasElem = inner_graphic_staging.getElementsByClassName("panCanvas")[0]
     panCanvasElem.removeAttribute("width")
     panCanvasElem.removeAttribute("height")
     panCanvasElem.removeAttribute("transform")
-    var rect_elem = inner_graphic_staging.getElementsByClassName("background")[0]
-    inner_graphic_staging.removeChild(rect_elem);
+    // drop the canvas-sized background rects so the export crops to the graph itself
+    var backgrounds = inner_graphic_staging.getElementsByClassName("background");
+    while (backgrounds.length) {
+        backgrounds[0].parentNode.removeChild(backgrounds[0]);
+    }
 
-    // insert embedded styles for text and element rendering
-    clone.insertAdjacentHTML('afterbegin', SVG_EMBEDDED_STYLES)
+    // Use the stylesheet the view actually renders with (sent over the bridge),
+    // falling back to the embedded copy if it is not available yet.
+    clone.insertAdjacentHTML('afterbegin', window.style_element_text || SVG_EMBEDDED_STYLES)
+
+    // measure the detached svg by briefly mounting it off-screen
+    clone.style.position = "absolute";
+    clone.style.left = "-99999px";
+    document.body.appendChild(clone);
+    var bbox = clone.getBBox();
+    document.body.removeChild(clone);
+    clone.removeAttribute("style");
+
+    // tight crop with a small margin so node strokes are not clipped
+    var padding = 10;
+    var x = bbox.x - padding,
+        y = bbox.y - padding,
+        w = bbox.width + padding * 2,
+        h = bbox.height + padding * 2;
+
+    // white background
+    var background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    background.setAttribute("x", x);
+    background.setAttribute("y", y);
+    background.setAttribute("width", w);
+    background.setAttribute("height", h);
+    background.setAttribute("fill", "#FFFFFF");
+    clone.insertBefore(background, clone.firstChild);
+
+    clone.setAttribute("width", String(w));
+    clone.setAttribute("height", String(h));
+    clone.setAttribute("viewBox", [x, y, w, h].join(" "));
 
     return clone;
 }
