@@ -599,29 +599,40 @@ const cartographer = function() {
         if(is_sankey_mode) {
             edges.attr("stroke-width", function(d) { return graph.edge(d).weight; })
 
-            // Pointed flow ends: dagre's markers, scaled to the ribbon and painted
-            // in the flow colour instead of the default oversized grey. Keep the
-            // 10x10 viewBox the triangle was drawn for, or it renders off-centre.
-            // "none" lets it be shorter than it is wide: a flat arrowhead on a
-            // curved ribbon instead of a long lopsided spike.
-            d3.selectAll("marker")
-                .attr("viewBox", "0 0 10 10")
-                .attr("preserveAspectRatio", "none")
-                .attr("markerWidth", 1)
-                .attr("markerHeight", 1.5);
-            d3.selectAll("path").attr("marker-end", function(data) {
-                if (!this.attributes["marker-end"]) return null;
-                return "url(" + /url\(.*?(#.*?)\)/.exec(this.attributes["marker-end"].textContent)[1] + ")";
-            });
+            // Sankey flows end in a point: draw a triangle whose base sits on the
+            // ribbon's own cross-section and whose tip is at the node, then cut
+            // the ribbon at that base so the line does not run under the arrow.
+            d3.selectAll("marker").remove();
+            panCanvas.selectAll(".arrowTip").remove();
             panCanvas.selectAll(".edgePath path.path").each(function() {
-                var markerId = /url\(#(.*?)\)/.exec(this.getAttribute("marker-end") || "");
-                if (!markerId) return;
-                var marker = document.getElementById(markerId[1]);
-                var tip = marker && marker.getElementsByTagName("path")[0];
-                if (tip) {
-                    tip.setAttribute("fill", window.getComputedStyle(this).stroke);
-                    tip.style.opacity = "1"; // the .edgePath CSS dims marker paths
-                }
+                this.removeAttribute("marker-end");
+                var style = window.getComputedStyle(this);
+                var strokeWidth = parseFloat(style.strokeWidth) || 1;
+                var total = this.getTotalLength();
+                var head = Math.max(6, 1.1 * strokeWidth);
+                var cut = Math.max(0, total - head);
+
+                var start = this.getPointAtLength(cut);
+                var after = this.getPointAtLength(Math.min(total, cut + 0.5));
+                var dx = after.x - start.x, dy = after.y - start.y;
+                var norm = Math.sqrt(dx * dx + dy * dy) || 1;
+                dx /= norm; dy /= norm;
+                var half = 0.7 * strokeWidth;
+                var tip = this.getPointAtLength(total);
+
+                var arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                arrow.setAttribute("class", "arrowTip");
+                arrow.setAttribute("points", [
+                    (start.x - dy * half) + "," + (start.y + dx * half),
+                    (start.x + dy * half) + "," + (start.y - dx * half),
+                    tip.x + "," + tip.y,
+                ].join(" "));
+                arrow.setAttribute("fill", style.stroke);
+                arrow.setAttribute("opacity", style.opacity);
+                this.parentNode.appendChild(arrow);
+
+                // stop the ribbon where the arrow begins
+                this.style.strokeDasharray = cut + " " + (total - cut + 1);
             });
         }
     };
