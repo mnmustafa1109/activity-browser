@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 from abc import abstractmethod
@@ -127,6 +128,17 @@ def to_svg(svg):
         svg_file.close()
 
 
+def to_png(data_url):
+    """Export to .png format from a base64 data URL."""
+    filepath = savefilepath(default_file_name="png_export", file_filter="PNG (*.png)")
+    if filepath:
+        if not filepath.endswith(".png"):
+            filepath += ".png"
+        png_file = open(filepath, "wb")
+        png_file.write(base64.b64decode(data_url.partition(",")[2]))
+        png_file.close()
+
+
 class Bridge(QObject):
     graph_ready = Signal(str)
     update_graph = Signal(object)
@@ -155,6 +167,14 @@ class Bridge(QObject):
             svg: string of svg
         """
         to_svg(svg)
+
+    @Slot(str, name="download_png_triggered")
+    def download_png_triggered(self, data_url: str):
+        """Is called when the PNG download button is clicked in Javascript.
+        Args:
+            data_url: base64 encoded png data URL
+        """
+        to_png(data_url)
 
 
 class BaseGraph(object):

@@ -740,38 +740,59 @@ div.tooltip { position: absolute; text-align: left; width: auto; height: auto; p
 ]]></style>
 `;
 
- d3.select("#downloadSVGtButtonqPWKOg").on("click", function() {
- 
-     // create new svg element
-     var clone = document.createElementNS("http://www.w3.org/2000/svg", "svg");
- 
-     // copy figure content to new svg element
-     var inner_graphic = document.getElementsByClassName("inner")[0]
-     clone.innerHTML = inner_graphic.outerHTML;
- 
-     // edit new svg element
-     var parentTag = document.getElementById("canvasqPWKOg");
-     var svg = parentTag.firstChild
-     var svg_rect = svg.getBBox(); // get the bounding rectangle
-     clone.setAttribute("width", String(svg_rect.width));
-     clone.setAttribute("height", String(svg_rect.height));
- 
-     var inner_graphic_staging = clone.getElementsByClassName("inner")[0]
-     panCanvasElem = inner_graphic_staging.getElementsByClassName("panCanvas")[0]
-     panCanvasElem.removeAttribute("width")
-     panCanvasElem.removeAttribute("height")
-     panCanvasElem.removeAttribute("transform")
-     var rect_elem = inner_graphic_staging.getElementsByClassName("background")[0]
-     inner_graphic_staging.removeChild(rect_elem);
- 
+// Build a standalone SVG document (with embedded styles) from the current graph.
+function buildExportSVG() {
+    // create new svg element
+    var clone = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+    // copy figure content to new svg element
+    var inner_graphic = document.getElementsByClassName("inner")[0]
+    clone.innerHTML = inner_graphic.outerHTML;
+
+    // edit new svg element
+    var parentTag = document.getElementById("canvasqPWKOg");
+    var svg = parentTag.firstChild
+    var svg_rect = svg.getBBox(); // get the bounding rectangle
+    clone.setAttribute("width", String(svg_rect.width));
+    clone.setAttribute("height", String(svg_rect.height));
+
+    var inner_graphic_staging = clone.getElementsByClassName("inner")[0]
+    var panCanvasElem = inner_graphic_staging.getElementsByClassName("panCanvas")[0]
+    panCanvasElem.removeAttribute("width")
+    panCanvasElem.removeAttribute("height")
+    panCanvasElem.removeAttribute("transform")
+    var rect_elem = inner_graphic_staging.getElementsByClassName("background")[0]
+    inner_graphic_staging.removeChild(rect_elem);
+
     // insert embedded styles for text and element rendering
     clone.insertAdjacentHTML('afterbegin', SVG_EMBEDDED_STYLES)
- 
-     //get svg source
-     var serializer = new XMLSerializer();
-     var source = serializer.serializeToString(clone);
- 
-     window.bridge.download_triggered(source)
+
+    return clone;
+}
+
+ d3.select("#downloadSVGtButtonqPWKOg").on("click", function() {
+     window.bridge.download_triggered(new XMLSerializer().serializeToString(buildExportSVG()))
+ });
+
+ d3.select("#downloadPNGtButtonqPWKOg").on("click", function() {
+     var scale = 2; // render at 2x for a crisp PNG
+     var clone = buildExportSVG();
+     var canvas = document.createElement("canvas");
+     canvas.width = Math.max(1, Math.round(parseFloat(clone.getAttribute("width")) * scale));
+     canvas.height = Math.max(1, Math.round(parseFloat(clone.getAttribute("height")) * scale));
+
+     var context = canvas.getContext("2d");
+     context.fillStyle = "#FFFFFF";
+     context.fillRect(0, 0, canvas.width, canvas.height);
+
+     var image = new Image();
+     image.onload = function() {
+         context.drawImage(image, 0, 0, canvas.width, canvas.height);
+         window.bridge.download_png_triggered(canvas.toDataURL("image/png"));
+     };
+     image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+         new XMLSerializer().serializeToString(clone)
+     );
  });
 
 // Construct 'render' object and initialize cartographer.
