@@ -27,14 +27,14 @@ svg {
   overflow: visible;
 }
 .canvas .wrapper.outer > .background {
-  fill: #fafafa;
+  fill: #FFFFFF;
 }
 .canvas .wrapper.inner > .background {
-  fill: #fafafa;
+  fill: #FFFFFF;
   cursor: move;
 }
 .canvas .background {
-  fill: #fafafa;
+  fill: #FFFFFF;
   stroke: #e0e0e0;
   cursor: move;
 }
@@ -190,7 +190,7 @@ text {
   +-moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   paint-order: stroke fill;
-  stroke: #fafafa;
+  stroke: #FFFFFF;
   stroke-width: 2px;
 }
 
